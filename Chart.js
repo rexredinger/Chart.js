@@ -68,6 +68,9 @@
 			// Boolean - Whether to show labels on the scale
 			scaleShowLabels: true,
 
+			// Boolean - Whether to show the Y axis on the scale
+			scaleShowYlabels: true,
+
 			// Interpolated JS string - can access value
 			scaleLabel: "<%=value%>",
 
@@ -1411,7 +1414,7 @@
 			for (var i=0; i<=this.steps; i++){
 				this.yLabels.push(template(this.templateString,{value:(this.min + (i * this.stepValue)).toFixed(stepDecimalPlaces)}));
 			}
-			this.yLabelWidth = (this.display && this.showLabels) ? longestText(this.ctx,this.font,this.yLabels) : 0;
+			this.yLabelWidth = (this.display && this.showLabels && this.showYLabels) ? longestText(this.ctx,this.font,this.yLabels) : 0;
 		},
 		addXLabel : function(label){
 			this.xLabels.push(label);
@@ -1564,8 +1567,8 @@
 
 					ctx.textAlign = "right";
 					ctx.textBaseline = "middle";
-					if (this.showLabels){
-						ctx.fillText(labelString,xStart - 10,yLabelCenter);
+					if (this.showLabels && this.showYLabels){
+						ctx.fillText(labelString,xStart - 10,yLabelCenter); //POOP
 					}
 					ctx.beginPath();
 					if (index > 0){
@@ -1585,13 +1588,15 @@
 					ctx.stroke();
 					ctx.closePath();
 
-					ctx.lineWidth = this.lineWidth;
-					ctx.strokeStyle = this.lineColor;
-					ctx.beginPath();
-					ctx.moveTo(xStart - 5, linePositionY);
-					ctx.lineTo(xStart, linePositionY);
-					ctx.stroke();
-					ctx.closePath();
+					if (this.showYLabels){
+						ctx.lineWidth = this.lineWidth;
+						ctx.strokeStyle = this.lineColor;
+						ctx.beginPath();
+						ctx.moveTo(xStart - 5, linePositionY);
+						ctx.lineTo(xStart, linePositionY);
+						ctx.stroke(); //POOP
+						ctx.closePath();
+					}
 
 				},this);
 
@@ -1601,21 +1606,24 @@
 						linePos = this.calculateX(index - (this.offsetGridLines ? 0.5 : 0)) + aliasPixel(this.lineWidth),
 						isRotated = (this.xLabelRotation > 0);
 
+
+          if (this.showYLabels){
 					ctx.beginPath();
 
-					if (index > 0){
-						// This is a grid line in the centre, so drop that
-						ctx.lineWidth = this.gridLineWidth;
-						ctx.strokeStyle = this.gridLineColor;
-					} else {
-						// This is the first line on the scale
-						ctx.lineWidth = this.lineWidth;
-						ctx.strokeStyle = this.lineColor;
-					}
-					ctx.moveTo(linePos,this.endPoint);
-					ctx.lineTo(linePos,this.startPoint - 3);
-					ctx.stroke();
-					ctx.closePath();
+						if (index > 0){
+							// This is a grid line in the centre, so drop that
+							ctx.lineWidth = this.gridLineWidth;
+							ctx.strokeStyle = this.gridLineColor;
+							} else {
+							// This is the first line on the scale
+							ctx.lineWidth = this.lineWidth;
+							ctx.strokeStyle = this.lineColor;
+							}
+							ctx.moveTo(linePos,this.endPoint);
+							ctx.lineTo(linePos,this.startPoint - 3);
+							ctx.stroke(); //POOP
+							ctx.closePath();
+				  }
 
 
 					ctx.lineWidth = this.lineWidth;
@@ -2618,6 +2626,7 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
 				showLabels : this.options.scaleShowLabels,
+				showYLabels : this.options.scaleShowYlabels,
 				display : this.options.showScale
 			};
 
